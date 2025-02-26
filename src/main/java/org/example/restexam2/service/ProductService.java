@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -68,11 +69,61 @@ public class ProductService {
 
         Product foundProduct = productRepository.findById(productDTO.getId()).orElseThrow(() -> new RuntimeException("Product not found"));
 
-        foundProduct.setName(productDTO.getName());
-        foundProduct.setPrice(productDTO.getPrice());
+        Optional.ofNullable(productDTO.getName()).ifPresent(foundProduct::setName);
+        Optional.ofNullable(productDTO.getDescription()).ifPresent(foundProduct::setDescription);
+        Optional.ofNullable(productDTO.getPrice()).ifPresent(foundProduct::setPrice);
+
+        //foundProduct.setPrice(productDTO.getPrice());
+
+
 
         return  ProductDTO.formEntity(foundProduct);
     }
+
+    /*
+
+타입
+double: 기본형(primitive) 타입
+
+Double: 참조형(reference) 타입, 객체 wrapper 클래스
+
+특징
+double:
+
+실제 값을 직접 저장
+
+null 사용 불가능
+
+산술 연산 가능
+
+메모리의 스택(stack) 영역에 저장
+
+Double:
+
+객체로 값을 저장
+
+null 초기화 및 사용 가능
+
+직접적인 산술 연산 불가능 (언박싱 필요)
+
+실제 값은 힙(heap) 영역에 저장, 스택에는 참조 주소 저장
+
+메모리 사용
+double: 8바이트 고정
+
+Double: 객체 오버헤드로 인해 더 많은 메모리 사용
+
+성능
+double: 직접 값을 저장하므로 연산이 더 빠름
+
+Double: 객체 접근과 언박싱 과정으로 인해 상대적으로 느림
+
+활용
+double: 단순 수치 계산에 적합
+
+Double: null 값이 필요한 경우나 객체로 다뤄야 할 때 사용
+
+     */
 
     @Transactional
     public Boolean deleteProduct(Long id) {

@@ -27,16 +27,19 @@ public class ProductController {
         List<ProductDTO> products = productService.getProducts();
 
 
-        return ResponseEntity.ok(products);
+       // return ResponseEntity.ok(products);
+        return new ResponseEntity<>(products, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable(name = "id") Long id) {
 
         try {
-               return ResponseEntity.ok(productService.getProduct(id));
+            //return ResponseEntity.ok(productService.getProduct(id));
+               return  new ResponseEntity<>(productService.getProduct(id), HttpStatus.OK);
         } catch (NoSuchElementException e) {
-            return ResponseEntity.notFound().build();
+            //return ResponseEntity.notFound().build();
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
 
@@ -48,7 +51,8 @@ public class ProductController {
 
         ProductDTO creatProductDTO =   productService.createProduct(productDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(creatProductDTO);
+        //return ResponseEntity.status(HttpStatus.CREATED).body(creatProductDTO);
+        return  new ResponseEntity<>(creatProductDTO, HttpStatus.CREATED);
     }
 
 
@@ -61,7 +65,8 @@ public class ProductController {
         productDTO.setId(id);  // 경로 변수의 ID를 제품에 설정
         ProductDTO updatedProductDTO = productService.updateProduct(productDTO);
 
-        return ResponseEntity.ok(updatedProductDTO);
+       // return ResponseEntity.ok(updatedProductDTO);
+        return  new ResponseEntity<>(updatedProductDTO, HttpStatus.OK);
     }
 
 
