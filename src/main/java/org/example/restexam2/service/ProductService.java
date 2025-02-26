@@ -26,25 +26,28 @@ public class ProductService {
         List<Product> products = productRepository.findAll();
 
 
-        return products.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return products.stream()
+                .map(ProductDTO::formEntity)
+                //.map(product -> ProductDTO.formEntity(product) 과 같은
+                .collect(Collectors.toList());
     }
     @Transactional(readOnly = true )
     public ProductDTO getProduct(Long id) {
         Product product =productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
 
-        return convertToDTO(product);
+        return ProductDTO.formEntity(product);
     }
 
     @Transactional
     public ProductDTO createProduct(ProductDTO productDTO) {
 
 
-        Product product = convertToEntity(productDTO);
+        Product product = Product.formDTO(productDTO);
 
         try {
             Product saveroduct =  productRepository.save(product);
 
-            return convertToDTO(saveroduct);
+            return ProductDTO.formEntity(saveroduct);
         }catch (RuntimeException e) {
             throw  new  RuntimeException("Error while creating product");
         }
@@ -68,7 +71,7 @@ public class ProductService {
         foundProduct.setName(productDTO.getName());
         foundProduct.setPrice(productDTO.getPrice());
 
-        return convertToDTO(foundProduct);
+        return  ProductDTO.formEntity(foundProduct);
     }
 
     @Transactional
@@ -92,7 +95,7 @@ public class ProductService {
         return productRepository.existsById(id);
     }
 
-
+/*
     private ProductDTO convertToDTO(Product product) {
         ProductDTO productDTO = new ProductDTO();
         productDTO.setId(product.getId());
@@ -110,6 +113,7 @@ public class ProductService {
         product.setPrice(productDTO.getPrice());
         return product;
     }
+    */
 
     /*
 
