@@ -9,10 +9,7 @@ import org.example.restexam2.domain.UploadInfo;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StreamUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileOutputStream;
@@ -73,10 +70,12 @@ try-with-resources 구문을 사용하면 코드가 더 안전하고 간결해�
     // 파일 업로드
     @PostMapping("/file/upload")
     public ResponseEntity<String> uploadfile(
-              @RequestParam(name = "file")MultipartFile file
-            , @RequestParam(name = "info", required = false) String infoJson) {
+              @RequestParam(name = "file" )MultipartFile file
+           // , @RequestParam(name = "info", required = false) String infoJson
+            , @RequestPart(name = "info", required = false) UploadInfo uploadInfo) {
         log.info("파일 이름 ::: "+file.getOriginalFilename());
-
+        log.info("파일 설명 ::: " + uploadInfo.getTag() + " :: " + uploadInfo.getDescription());
+/*
         if (infoJson != null && !infoJson.isEmpty()) {
             try {
                 ObjectMapper objectMapper = new ObjectMapper();
@@ -86,6 +85,8 @@ try-with-resources 구문을 사용하면 코드가 더 안전하고 간결해�
                 log.error("JSON 파싱 오류", e);
             }
         }
+
+ */
 
         String originalFilename = file.getOriginalFilename();
         String randomString = UUID.randomUUID().toString().substring(0, 8);
@@ -108,4 +109,6 @@ try-with-resources 구문을 사용하면 코드가 더 안전하고 간결해�
 
     // curl -X POST http://localhost:8080/file/upload -F "file=@C:/d/12.jpg" -F "info={\"tag\":\"example\",\"description\":\"test upload\"}"
 
+
+    //curl -X POST http://localhost:8080/upload -H "Content-Type: multipart/form-data" -F "file=@C:/temp/dog.jpg"  -F "info=@C:/temp/info.json;type=application/json"
 }
