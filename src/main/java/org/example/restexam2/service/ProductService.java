@@ -4,11 +4,13 @@ package org.example.restexam2.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.restexam2.domain.Product;
+import org.example.restexam2.dto.ProductDTO;
 import org.example.restexam2.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,20 +21,30 @@ public class ProductService {
     private final ProductRepository productRepository;
 
     @Transactional(readOnly = true )
-    public List<Product> getProducts() {
-        return productRepository.findAll();
+    public List<ProductDTO> getProducts() {
+
+        List<Product> products = productRepository.findAll();
+
+
+        return products.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
     @Transactional(readOnly = true )
-    public Product getProduct(Long id) {
+    public ProductDTO getProduct(Long id) {
+        Product product =productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
 
-        return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
+        return convertToDTO(product);
     }
 
     @Transactional
-    public Product createProduct(Product product) {
+    public ProductDTO createProduct(ProductDTO productDTO) {
+
+
+        Product product = convertToEntity(productDTO);
 
         try {
-            return productRepository.save(product);
+            Product saveroduct =  productRepository.save(product);
+
+            return convertToDTO(saveroduct);
         }catch (RuntimeException e) {
             throw  new  RuntimeException("Error while creating product");
         }
@@ -41,22 +53,22 @@ public class ProductService {
     }
 
     @Transactional
-    public Product updateProduct(Product product) {
+    public ProductDTO updateProduct(ProductDTO productDTO) {
 
 
-        if(!productRepository.existsById(product.getId()) || product.getId() == null) {
+        if(!productRepository.existsById(productDTO.getId()) || productDTO.getId() == null) {
             log.info("Product not found");
             throw new RuntimeException("Product not found");
         }
 
         log.info("Updating product");
 
-        Product foundProduct = productRepository.findById(product.getId()).orElseThrow(() -> new RuntimeException("Product not found"));
+        Product foundProduct = productRepository.findById(productDTO.getId()).orElseThrow(() -> new RuntimeException("Product not found"));
 
-        foundProduct.setName(product.getName());
-        foundProduct.setPrice(product.getPrice());
+        foundProduct.setName(productDTO.getName());
+        foundProduct.setPrice(productDTO.getPrice());
 
-        return foundProduct;
+        return convertToDTO(foundProduct);
     }
 
     @Transactional
@@ -79,6 +91,57 @@ public class ProductService {
     public Boolean existsById(Long id) {
         return productRepository.existsById(id);
     }
+
+
+    private ProductDTO convertToDTO(Product product) {
+        ProductDTO productDTO = new ProductDTO();
+        productDTO.setId(product.getId());
+        productDTO.setName(product.getName());
+        productDTO.setDescription(product.getDescription());
+        productDTO.setPrice(product.getPrice());
+        return productDTO;
+    }
+
+    private Product convertToEntity(ProductDTO productDTO) {
+        Product product = new Product();
+        product.setId(productDTO.getId());
+        product.setName(productDTO.getName());
+        product.setDescription(productDTO.getDescription());
+        product.setPrice(productDTO.getPrice());
+        return product;
+    }
+
+    /*
+
+엔티티 (Entity):
+
+데이터베이스 테이블과 직접적으로 매핑되는 객체입니다.
+
+JPA를 사용할 경우, @Entity 어노테이션을 사용하여 엔티티 클래스를 정의합니다.
+
+데이터베이스 테이블의 컬럼에 해당하는 필드를 가지고 있습니다.
+
+주로 데이터베이스와의 상호작용을 위해 사용됩니다.
+
+엔티티는 데이터베이스 스키마와 밀접하게 연결되어 있으므로, 프레젠테이션 계층이나 서비스 계층에서 직접 사용하는 것은 권장되지 않습니다. (집안에서 외출복)
+
+DTO (Data Transfer Object):
+
+계층 간 데이터 교환을 위한 객체입니다.
+
+데이터베이스 테이블 구조와 독립적입니다.
+
+프레젠테이션 계층에서 필요한 데이터를 담아 서비스 계층으로 전달하거나, 서비스 계층에서 처리된 데이터를 프레젠테이션 계층으로 반환하는 데 사용됩니다.
+
+엔티티와 달리, 필요한 데이터만 담을 수 있도록 커스터마이징이 가능합니다.
+
+계층 간 결합도를 낮추고, 데이터의 보안성을 높이는 데 기여합니다. (잠옷)
+
+
+
+
+
+     */
 
 
 

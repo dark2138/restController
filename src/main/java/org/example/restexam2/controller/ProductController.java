@@ -3,6 +3,7 @@ package org.example.restexam2.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.restexam2.domain.Product;
+import org.example.restexam2.dto.ProductDTO;
 import org.example.restexam2.service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,16 +22,16 @@ public class ProductController {
 
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
+    public ResponseEntity<List<ProductDTO>> getAllProducts() {
 
-        List<Product> products = productService.getProducts();
+        List<ProductDTO> products = productService.getProducts();
 
 
         return ResponseEntity.ok(products);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProductById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<ProductDTO> getProductById(@PathVariable(name = "id") Long id) {
 
         try {
                return ResponseEntity.ok(productService.getProduct(id));
@@ -42,25 +43,25 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody Product product) {
+    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
 
 
-         Product creatProduct =   productService.createProduct(product);
+        ProductDTO creatProductDTO =   productService.createProduct(productDTO);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(creatProduct);
+        return ResponseEntity.status(HttpStatus.CREATED).body(creatProductDTO);
     }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(@PathVariable(name = "id") Long id, @RequestBody Product product) {
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable(name = "id") Long id, @RequestBody ProductDTO productDTO) {
         if (!productService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
 
-        product.setId(id);  // 경로 변수의 ID를 제품에 설정
-        Product updatedProduct = productService.updateProduct(product);
+        productDTO.setId(id);  // 경로 변수의 ID를 제품에 설정
+        ProductDTO updatedProductDTO = productService.updateProduct(productDTO);
 
-        return ResponseEntity.ok(updatedProduct);
+        return ResponseEntity.ok(updatedProductDTO);
     }
 
 
